@@ -1,0 +1,37 @@
+<!--
+Programming Language: JavaScript (inside HTML)
+Program Purpose: Basic ATM Withdrawal System in a browser
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATM Withdrawal System</title>
+</head>
+<body>
+    <h2>Welcome to the ATM Withdrawal System!</h2>
+    <p>Account Balance: <span id="balance">500.0</span></p>
+
+    <label for="withdraw">Enter withdrawal amount:</label>
+    <input type="number" id="withdraw" />
+    <button onclick="withdrawMoney()">Withdraw</button>
+
+    <p id="message"></p>
+
+    <script>
+        let account_balance = 500.0;
+
+        function withdrawMoney() {
+            let withdrawal_amount = parseFloat(document.getElementById("withdraw").value);
+
+            if (withdrawal_amount <= account_balance) {
+                account_balance -= withdrawal_amount;
+                document.getElementById("message").innerText = "Withdrawal successful!";
+                document.getElementById("balance").innerText = account_balance.toFixed(2);
+            } else {
+                document.getElementById("message").innerText = "Insufficient funds!";
+            }
+        }
+    </script>
+</body>
+</html>
