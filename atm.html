@@ -1,6 +1,8 @@
 <!--
 Programming Language: JavaScript (inside HTML)
-Program Purpose: Basic ATM Withdrawal System in a browser
+Program Purpose: This program simulates a basic ATM Withdrawal System.
+It allows the user to withdraw money from their account balance and
+validates whether the withdrawal is possible based on available funds.
 -->
 
 <!DOCTYPE html>
@@ -19,11 +21,14 @@ Program Purpose: Basic ATM Withdrawal System in a browser
     <p id="message"></p>
 
     <script>
+        // Step 1: Account Initialization
         let account_balance = 500.0;
-
+        
+        // Step 2: Withdrawal Function
         function withdrawMoney() {
             let withdrawal_amount = parseFloat(document.getElementById("withdraw").value);
 
+            // Step 3: Validation Logic
             if (withdrawal_amount <= account_balance) {
                 account_balance -= withdrawal_amount;
                 document.getElementById("message").innerText = "Withdrawal successful!";
