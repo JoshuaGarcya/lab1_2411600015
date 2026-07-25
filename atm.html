@@ -5,27 +5,85 @@ It allows the user to withdraw money from their account balance and
 validates whether the withdrawal is possible based on available funds.
 -->
 
-<!DOCTYPE html>
-<html>
+!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>ATM Withdrawal System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #3678db;
+            display: flex;
+            justify-content: center;   /* Centers horizontally */
+            align-items: center;       /* Centers vertically */
+            height: 100vh;             /* Full screen height */
+            margin: 0;
+        }
+        .atm-box {
+            background: #ffffff;
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;        /* Centers text inside box */
+            width: 300px;
+            box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1f6391;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome to the ATM Withdrawal System!</h2>
-    <p>Account Balance: <span id="balance">500.0</span></p>
+    <div class="atm-box">
+        <h1>ATM Withdrawal</h1>
+        <p>Account Balance: <span id="balance">500.0</span></p>
 
-    <label for="withdraw">Enter withdrawal amount:</label>
-    <input type="number" id="withdraw" />
-    <button onclick="withdrawMoney()">Withdraw</button>
+        <input type="number" id="withdraw" placeholder="Enter amount" />
+        <br>
+        <button onclick="withdrawMoney()">Withdraw</button>
 
-    <p id="message"></p>
+        <p id="message" class="result"></p>
+    </div>
 
     <script>
+        // Step 1: Account Initialization
         let account_balance = 500.0;
 
+        // Step 2: Withdrawal Function
         function withdrawMoney() {
             let withdrawal_amount = parseFloat(document.getElementById("withdraw").value);
 
+            // Step 3: Validation Logic
             if (withdrawal_amount <= account_balance) {
                 account_balance -= withdrawal_amount;
                 document.getElementById("message").innerText = "Withdrawal successful!";
