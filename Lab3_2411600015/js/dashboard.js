@@ -71,13 +71,13 @@ function populateActivityTable() {
     const tableBody = document.getElementById('activityTableBody');
     if (!tableBody) return;
 
-    const activities = [
-        { date: '2026-08-10 14:30', activity: 'Assignment submitted: Data Structures Project', status: 'success' },
-        { date: '2026-08-10 13:15', activity: 'Grade posted for Midterm Exam - Calculus II', status: 'info' },
-        { date: '2026-08-10 11:45', activity: 'Enrollment updated for Fall semester courses', status: 'warning' },
-        { date: '2026-08-10 09:00', activity: 'New announcement from Computer Science Dept.', status: 'success' },
-        { date: '2026-08-09 16:20', activity: 'Tuition payment received for Semester 1', status: 'success' },
-        { date: '2026-08-09 14:10', activity: 'Late submission flagged for Lab Report 3', status: 'danger' }
+     const activities = [
+        { date: 'August 16', activity: 'Submitted Physics Lab Report', status: 'success' },
+        { date: 'August 15', activity: 'Grade posted for English Essay', status: 'info' },
+        { date: 'August 14', activity: 'Attendance updated for History Class', status: 'warning' },
+        { date: 'August 14', activity: 'Library book borrowed: "CSS Design Guide"', status: 'success' },
+        { date: 'August 14', activity: 'Exam schedule released for Midterm Exams', status: 'info' },
+        { date: 'August 13', activity: 'Late submission flagged for Chemistry Assignment', status: 'danger' }
     ];
 
     tableBody.innerHTML = '';
@@ -85,7 +85,7 @@ function populateActivityTable() {
     activities.forEach(activity => {
         const row = document.createElement('tr');
 
-        let badgeClass = 'bg-secondary';
+         let badgeClass = 'bg-secondary';
         if (activity.status === 'success') badgeClass = 'bg-success';
         else if (activity.status === 'warning') badgeClass = 'bg-warning text-dark';
         else if (activity.status === 'danger') badgeClass = 'bg-danger';
