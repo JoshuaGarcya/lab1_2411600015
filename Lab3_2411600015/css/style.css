@@ -1,7 +1,7 @@
 :root {
-    --bs-primary: #00120B;
-    --bs-primary-rgb: 0, 18, 11;
-    --bs-secondary: #1a936f;
+    --bs-primary: #072AC8;
+    --bs-primary-rgb: 7, 42, 200;
+    --bs-secondary: #1E96FC;
     --bs-secondary-rgb: 26, 147, 111;
     --bs-success: #28a745;
     --bs-info: #17a2b8;
@@ -9,12 +9,12 @@
     --bs-danger: #dc3545;
 
     /* Custom Theme Colors */
-    --theme-primary: #00120B;
-    --theme-secondary: #9ed1ca;
+    --theme-primary: #FFC600;
+    --theme-secondary: #1E96FC;
     --theme-accent: #6B818C;
     --theme-background: #D8E4FF;
     --theme-light-accent: #d4ece4;
-    --theme-text: #459b6c;
+    --theme-text: #1E96FC;
 }
 
 body {
