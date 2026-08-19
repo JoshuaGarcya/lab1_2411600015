@@ -23,6 +23,12 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.dashboard-page {
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+
 .login-page {
     background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
     min-height: 100vh;
@@ -135,8 +141,8 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #0a4a32;
-    border-color: #0a4a32;
+    background-color: #A2D6F9;
+    border-color: #A2D6F9;
 }
 
 @media (max-width: 768px) {
@@ -167,3 +173,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--theme-primary);
 }
+
