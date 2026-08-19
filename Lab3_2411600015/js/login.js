@@ -4,7 +4,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const feedbackDiv = document.getElementById('loginFeedback');
+    const rememberMe = document.getElementById('rememberMe');
 
+    // Auto-fill if Remember Me was used before
+    if (localStorage.getItem('rememberUser') && localStorage.getItem('rememberPass')) {
+        usernameInput.value = localStorage.getItem('rememberUser');
+        passwordInput.value = localStorage.getItem('rememberPass');
+        rememberMe.checked = true;
+    }
+
+    // Redirect if already logged in
     if (localStorage.getItem('isLoggedIn') === 'true') {
         window.location.href = 'dashboard.html';
     }
@@ -27,11 +36,17 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('user', username);
 
-            showFeedback('Login successful! Redirecting...', 'success');
+            // Save credentials if Remember Me is checked
+            if (rememberMe.checked) {
+                localStorage.setItem('rememberUser', username);
+                localStorage.setItem('rememberPass', password);
+            } else {
+                localStorage.removeItem('rememberUser');
+                localStorage.removeItem('rememberPass');
+            }
 
-            setTimeout(function() {
-                window.location.href = 'dashboard.html';
-            }, 1000);
+            showFeedback('Login successful! Redirecting...', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 1000);
         } else {
             showFeedback('Invalid username or password. Please try again.', 'danger');
         }
@@ -48,14 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     usernameInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            loginBtn.click();
-        }
+        if (e.key === 'Enter') loginBtn.click();
     });
 
     passwordInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            loginBtn.click();
-        }
+        if (e.key === 'Enter') loginBtn.click();
     });
 });
