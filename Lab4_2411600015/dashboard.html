@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js CDN (Part 4) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                GSCSDA Student Portal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="navbar-text text-white me-3" id="userDisplay">
+                            Welcome, <span id="userName">User</span>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light btn-sm" id="logoutBtn">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar vh-100 p-3">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Settings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="#" id="logoutLink">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <!-- Content goes here -->
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h2 id="greeting">Good Morning, User!</h2>
+                </div>
+
+                <!-- ===================== -->
+                <!-- Low-Stock / At-Risk Alert Banner (Part 2 Step 1 / Part 5 Step 3) -->
+                <!-- ===================== -->
+                <div id="lowStockAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
+                    <strong>⚠️ At-Risk Alert:</strong>
+                    <span id="lowStockAlertText"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card shadow-hover text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted" id="stat1-title">GPA</h5>
+                                <h2 class="card-text fw-bold text-primary" id="stat1-value">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card shadow-hover text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted" id="stat2-title">Courses</h5>
+                                <h2 class="card-text fw-bold text-success" id="stat2-value">$0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card shadow-hover text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted" id="stat3-title">Assignments</h5>
+                                <h2 class="card-text fw-bold text-info" id="stat3-value">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stat-card shadow-hover text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-muted" id="stat4-title">Attendance</h5>
+                                <h2 class="card-text fw-bold text-warning" id="stat4-value">0%</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== -->
+                <!-- Charts Container (Part 2 Step 1 / Part 4) -->
+                <!-- ===================== -->
+                <div class="row mb-4">
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card shadow-hover h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Quality Points by Program</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="categoryValueChart" aria-label="Quality points by program chart" role="img"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card shadow-hover h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Academic Standing Distribution</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="stockStatusChart" aria-label="Academic standing distribution chart" role="img"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 mb-3">
+                        <div class="card shadow-hover h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Top Students by GPA</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="topProductsChart" aria-label="Top students by GPA chart" role="img"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== -->
+                <!-- Filter Controls (Part 2 Step 1 / Part 5 Step 1) -->
+                <!-- ===================== -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="categoryFilter" class="form-label">Program</label>
+                                <select id="categoryFilter" class="form-select">
+                                    <option value="all">All Programs</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="statusFilter" class="form-label">Academic Standing</label>
+                                <select id="statusFilter" class="form-select">
+                                    <option value="all">All Statuses</option>
+                                    <option value="Good Standing">Good Standing</option>
+                                    <option value="At Risk">At Risk</option>
+                                    <option value="Probation">Probation</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="priceMinInput" class="form-label">Min GPA</label>
+                                <input type="number" id="priceMinInput" class="form-control" step="0.01" min="0" max="4" placeholder="0.00">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="priceMaxInput" class="form-label">Max GPA</label>
+                                <input type="number" id="priceMaxInput" class="form-control" step="0.01" min="0" max="4" placeholder="4.00">
+                            </div>
+                            <div class="col-md-2">
+                                <button id="resetFiltersBtn" class="btn btn-outline-secondary w-100">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===================== -->
+                <!-- Student Roster: Search + Export + Table (Part 2 Step 1 / Part 3 / Part 5 Step 2) -->
+                <!-- ===================== -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="mb-0">Student Roster</h5>
+                        <div class="d-flex gap-2">
+                            <input type="text" id="searchInput" class="form-control form-control-sm"
+                                placeholder="Search by name or Student ID..." style="min-width: 220px;">
+                            <button id="exportCsvBtn" class="btn btn-sm btn-success">Export CSV</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead>
+                                    <tr class="border-accent">
+                                        <th>Student ID</th>
+                                        <th>Name</th>
+                                        <th>Program</th>
+                                        <th>Year</th>
+                                        <th>Units</th>
+                                        <th>GPA</th>
+                                        <th>Attendance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody">
+                                    <!-- Dynamic rows inserted by app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted small mb-0" id="resultsCount"></p>
+                    </div>
+                </div>
+
+                <!-- Existing Recent Activity table (unchanged from Lab 3) -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr class="border-accent">
+                                        <th>Date</th>
+                                        <th>Activity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityTableBody">
+                                    <!-- Dynamic rows will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast container for real-time update notifications (Part 5 Step 5) -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Bootstrap 5 JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="js/dataManager.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
