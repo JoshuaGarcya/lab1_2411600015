@@ -1,15 +1,33 @@
 [
-    { "id": 1, "studentId": "2411600001", "name": "Xyryl Quibal", "category": "BS Computer Science", "yearLevel": 3, "quantity": 21, "unitPrice": 3.75, "attendanceRate": 96 },
-    { "id": 2, "studentId": "2411600002", "name": "Kenneth Paul Petorio", "category": "BS Information Technology", "yearLevel": 2, "quantity": 18, "unitPrice": 1.85, "attendanceRate": 78 },
-    { "id": 3, "studentId": "2411600003", "name": "Nico Benz Sasing", "category": "BS Computer Science", "yearLevel": 4, "quantity": 24, "unitPrice": 3.20, "attendanceRate": 91 },
-    { "id": 4, "studentId": "2411600004", "name": "Ali Akbhar Jikiri", "category": "BS Accountancy", "yearLevel": 1, "quantity": 15, "unitPrice": 2.40, "attendanceRate": 85 },
-    { "id": 5, "studentId": "2411600005", "name": "Ryveen Troy Gomez", "category": "BS Nursing", "yearLevel": 3, "quantity": 22, "unitPrice": 1.60, "attendanceRate": 70 },
-    { "id": 6, "studentId": "2411600006", "name": "Jason Balaba", "category": "BS Information Technology", "yearLevel": 4, "quantity": 20, "unitPrice": 3.90, "attendanceRate": 98 },
-    { "id": 7, "studentId": "2411600007", "name": "Jano Gallarde", "category": "BS Accountancy", "yearLevel": 2, "quantity": 19, "unitPrice": 2.95, "attendanceRate": 88 },
-    { "id": 8, "studentId": "2411600008", "name": "Cassandra Quintua", "category": "BS Nursing", "yearLevel": 2, "quantity": 21, "unitPrice": 2.10, "attendanceRate": 80 },
-    { "id": 9, "studentId": "2411600009", "name": "Jayvee Batil", "category": "BS Computer Science", "yearLevel": 1, "quantity": 17, "unitPrice": 1.40, "attendanceRate": 65 },
-    { "id": 10, "studentId": "2411600010", "name": "Kyle Justine Capeleno", "category": "BS Information Technology", "yearLevel": 3, "quantity": 23, "unitPrice": 3.55, "attendanceRate": 94 },
-    { "id": 11, "studentId": "2411600011", "name": "Bencar Tacras", "category": "BS Accountancy", "yearLevel": 4, "quantity": 24, "unitPrice": 3.10, "attendanceRate": 90 },
-    { "id": 12, "studentId": "2411600012", "name": "Arjun Lawag", "category": "BS Nursing", "yearLevel": 1, "quantity": 16, "unitPrice": 2.65, "attendanceRate": 82 }
-    
+    {
+        "id": 1,
+        "studentId": "2411600015",
+        "name": "Josh Ian Pacalang",
+        "email": "student.user@gscsda.edu.ph",
+        "category": "BS Information Technology",
+        "yearLevel": 3,
+        "semester": "First Semester 2026-2027",
+        "quantity": 21,
+        "unitPrice": 3.75,
+        "attendanceRate": 94,
+        "courses": [
+            { "code": "IT 301", "name": "Web Systems and Technologies", "units": 3, "grade": 3.75 },
+            { "code": "IT 302", "name": "Database Management Systems", "units": 3, "grade": 3.50 },
+            { "code": "IT 303", "name": "Systems Integration and Architecture", "units": 3, "grade": 3.75 },
+            { "code": "IT 304", "name": "Information Assurance and Security", "units": 3, "grade": 4.00 },
+            { "code": "GEC 108", "name": "Ethics", "units": 3, "grade": 3.50 },
+            { "code": "PE 4", "name": "Physical Activities Toward Health and Fitness", "units": 3, "grade": 4.00 }
+        ],
+        "assignments": [
+            { "title": "Database Design Project", "course": "IT 302", "dueDate": "2026-09-12", "status": "In Progress" },
+            { "title": "Web Systems Laboratory", "course": "IT 301", "dueDate": "2026-09-15", "status": "Pending" },
+            { "title": "Security Risk Assessment", "course": "IT 304", "dueDate": "2026-09-19", "status": "Submitted" }
+        ],
+        "attendance": [
+            { "course": "IT 301", "attended": 14, "totalSessions": 15, "rate": 93 },
+            { "course": "IT 302", "attended": 13, "totalSessions": 14, "rate": 93 },
+            { "course": "IT 303", "attended": 15, "totalSessions": 15, "rate": 100 },
+            { "course": "IT 304", "attended": 14, "totalSessions": 15, "rate": 93 }
+        ]
+    }
 ]

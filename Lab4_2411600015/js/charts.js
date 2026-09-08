@@ -6,7 +6,7 @@
  *
  * Three charts, each reading from dataManager:
  *   1. categoryValueChart -> Quality Points by Program   (bar)
- *   2. stockStatusChart   -> Academic Standing Distribution (doughnut)
+ *   2. stockStatusChart   -> Academic Standing Distribution (polarArea)
  *   3. topProductsChart   -> Top 5 Students by GPA        (horizontal bar)
  *
  * Chart instances are kept in module state so they can be destroyed
@@ -85,7 +85,7 @@ const dashboardCharts = (function () {
 
     /**
      * Step 3: Stock Status / Academic Standing Distribution chart.
-     * Doughnut chart with semantic colors (green/yellow/red).
+     * Polar Area chart with semantic colors (green/yellow/red).
      */
     function renderStockStatusChart(stats) {
         const canvas = document.getElementById('stockStatusChart');
@@ -93,9 +93,9 @@ const dashboardCharts = (function () {
 
         if (statusChart) statusChart.destroy();
         statusChart = new Chart(canvas, {
-            type: 'doughnut',
+            type: 'polarArea',
             data: {
-                labels: ['Good Standing', 'At Risk', 'Probation'],
+                labels: ['Good Standing', 'At Risk', 'Warning'],
                 datasets: [{
                     data: [stats.inStock, stats.lowStock, stats.outOfStock],
                     backgroundColor: [COLORS.success, COLORS.warning, COLORS.danger],
@@ -112,10 +112,7 @@ const dashboardCharts = (function () {
         });
     }
 
-    /**
-     * Additional chart (Step 5 / Part 4): Top 5 Students by GPA.
-     * Horizontal bar chart — good for longer name labels.
-     */
+   
     function renderTopProductsChart(students) {
         const canvas = document.getElementById('topProductsChart');
         if (!canvas) return;

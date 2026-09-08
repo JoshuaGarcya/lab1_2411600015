@@ -52,18 +52,8 @@ const dataManager = (function () {
     // without changing any function signature below.
     // ---------------------------------------------------------------
     const SAMPLE_STUDENTS = [
-        { id: 1, studentId: '2411600001', name: 'Maria Santos', category: 'BS Computer Science', yearLevel: 3, quantity: 21, unitPrice: 3.75, attendanceRate: 96 },
-        { id: 2, studentId: '2411600002', name: 'Juan Dela Cruz', category: 'BS Information Technology', yearLevel: 2, quantity: 18, unitPrice: 1.85, attendanceRate: 78 },
-        { id: 3, studentId: '2411600003', name: 'Angela Reyes', category: 'BS Computer Science', yearLevel: 4, quantity: 24, unitPrice: 3.20, attendanceRate: 91 },
-        { id: 4, studentId: '2411600004', name: 'Mark Villanueva', category: 'BS Accountancy', yearLevel: 1, quantity: 15, unitPrice: 2.40, attendanceRate: 85 },
-        { id: 5, studentId: '2411600005', name: 'Kristine Bautista', category: 'BS Nursing', yearLevel: 3, quantity: 22, unitPrice: 1.60, attendanceRate: 70 },
-        { id: 6, studentId: '2411600006', name: 'Paolo Fernandez', category: 'BS Information Technology', yearLevel: 4, quantity: 20, unitPrice: 3.90, attendanceRate: 98 },
-        { id: 7, studentId: '2411600007', name: 'Samantha Cruz', category: 'BS Accountancy', yearLevel: 2, quantity: 19, unitPrice: 2.95, attendanceRate: 88 },
-        { id: 8, studentId: '2411600008', name: 'Enrico Torres', category: 'BS Nursing', yearLevel: 2, quantity: 21, unitPrice: 2.10, attendanceRate: 80 },
-        { id: 9, studentId: '2411600009', name: 'Bianca Ramos', category: 'BS Computer Science', yearLevel: 1, quantity: 17, unitPrice: 1.40, attendanceRate: 65 },
-        { id: 10, studentId: '2411600010', name: 'Josh Mendoza', category: 'BS Information Technology', yearLevel: 3, quantity: 23, unitPrice: 3.55, attendanceRate: 94 },
-        { id: 11, studentId: '2411600011', name: 'Camille Aquino', category: 'BS Accountancy', yearLevel: 4, quantity: 24, unitPrice: 3.10, attendanceRate: 90 },
-        { id: 12, studentId: '2411600012', name: 'Rafael Garcia', category: 'BS Nursing', yearLevel: 1, quantity: 16, unitPrice: 2.65, attendanceRate: 82 },
+        { id: 1, studentId: '2411600015', name: 'Josh Ian Pacalang', category: 'BS Information Technology', yearLevel: 3, quantity: 21, unitPrice: 3.75, attendanceRate: 96 },
+
     ];
 
     // ---------------------------------------------------------------

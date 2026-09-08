@@ -247,6 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 `${updated.name}'s GPA changed to ${updated.unitPrice.toFixed(2)} (${updated.stockStatus}).`,
                 'info'
             );
-        }, 8000); // every 8 seconds
+        }, 5000); // every 5 seconds
     }
 });
