@@ -1,30 +1,31 @@
 /**
  * app.js
  * ------------------------------------------------------------------
- * DOM handlers for the Student Management Dashboard (Lab 4, Part 5).
- * Wires dataManager (state) and dashboardCharts (visualization) to
- * the actual page: filter controls, live search, low-stock alerts,
- * CSV export, and a simulated real-time feed.
+ * DOM handlers for the GSCSDA Student Portal Dashboard (Lab 4, Part
+ * 5) — "My Courses" section. Wires dataManager (state) and
+ * dashboardCharts (visualization) to the page: filter controls, live
+ * search, at-risk course alerts, CSV export, and a simulated
+ * real-time gradebook feed.
  * ------------------------------------------------------------------
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Guard: only run on pages that actually have the roster section.
-    const tableBody = document.getElementById('studentTableBody');
+    // Guard: only run on pages that actually have the courses section.
+    const tableBody = document.getElementById('courseTableBody');
     if (!tableBody || typeof dataManager === 'undefined') return;
 
     const els = {
         categoryFilter: document.getElementById('categoryFilter'),
         statusFilter: document.getElementById('statusFilter'),
-        priceMin: document.getElementById('priceMinInput'),
-        priceMax: document.getElementById('priceMaxInput'),
+        gradeMin: document.getElementById('gradeMinInput'),
+        gradeMax: document.getElementById('gradeMaxInput'),
         resetBtn: document.getElementById('resetFiltersBtn'),
         searchInput: document.getElementById('searchInput'),
         exportBtn: document.getElementById('exportCsvBtn'),
         tableBody,
         resultsCount: document.getElementById('resultsCount'),
-        alertBox: document.getElementById('lowStockAlert'),
-        alertText: document.getElementById('lowStockAlertText'),
+        alertBox: document.getElementById('courseAlert'),
+        alertText: document.getElementById('courseAlertText'),
         toastContainer: document.getElementById('toastContainer')
     };
 
@@ -43,10 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Setup ------------------------------------------------------
 
     function populateCategoryDropdown() {
-        dataManager.getCategories().forEach(cat => {
+        dataManager.getCategories().forEach(category => {
             const opt = document.createElement('option');
-            opt.value = cat;
-            opt.textContent = cat;
+            opt.value = category;
+            opt.textContent = category;
             els.categoryFilter.appendChild(opt);
         });
     }
@@ -58,28 +59,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         els.statusFilter.addEventListener('change', (e) => {
-            dataManager.filterByStockStatus(e.target.value);
+            dataManager.filterByStatus(e.target.value);
             refreshView();
         });
 
-        let priceDebounce;
-        function handlePriceChange() {
-            clearTimeout(priceDebounce);
-            priceDebounce = setTimeout(() => {
-                dataManager.filterByPriceRange(els.priceMin.value, els.priceMax.value);
+        let gradeDebounce;
+        function handleGradeChange() {
+            clearTimeout(gradeDebounce);
+            gradeDebounce = setTimeout(() => {
+                dataManager.filterByGradeRange(els.gradeMin.value, els.gradeMax.value);
                 refreshView();
             }, 250);
         }
-        els.priceMin.addEventListener('input', handlePriceChange);
-        els.priceMax.addEventListener('input', handlePriceChange);
+        els.gradeMin.addEventListener('input', handleGradeChange);
+        els.gradeMax.addEventListener('input', handleGradeChange);
 
         els.resetBtn.addEventListener('click', () => {
             dataManager.resetFilters();
             currentQuery = '';
             els.categoryFilter.value = 'all';
             els.statusFilter.value = 'all';
-            els.priceMin.value = '';
-            els.priceMax.value = '';
+            els.gradeMin.value = '';
+            els.gradeMax.value = '';
             els.searchInput.value = '';
             refreshView();
         });
@@ -97,13 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
         els.exportBtn.addEventListener('click', () => {
             const filtered = dataManager.applyFilters();
             if (!filtered.length) {
-                showToast('Nothing to export', 'No students match the current filters.', 'warning');
+                showToast('Nothing to export', 'No courses match the current filters.', 'warning');
                 return;
             }
             const csv = dataManager.exportToCSV(filtered);
             const stamp = new Date().toISOString().slice(0, 10);
-            dataManager.downloadCSV(csv, `student_roster_${stamp}.csv`);
-            showToast('Export complete', `${filtered.length} student record(s) exported to CSV.`, 'success');
+            dataManager.downloadCSV(csv, `my_grades_${stamp}.csv`);
+            showToast('Export complete', `${filtered.length} course record(s) exported to CSV.`, 'success');
         });
     }
 
@@ -111,12 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLoadingRow() {
         els.tableBody.innerHTML = `
-            <tr><td colspan="8" class="text-center text-muted py-4">Loading student roster...</td></tr>
+            <tr><td colspan="8" class="text-center text-muted py-4">Loading your courses...</td></tr>
         `;
     }
 
     function statusBadgeClass(status) {
-        if (status === 'Good Standing') return 'bg-success';
+        if (status === 'Passing') return 'bg-success';
         if (status === 'At Risk') return 'bg-warning text-dark';
         return 'bg-danger';
     }
@@ -140,12 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Rebuilds the student table body from scratch using DOM methods:
-     * innerHTML reset (removeChild-equivalent clear), then createElement
-     * + appendChild per row. Kept as explicit DOM construction (rather
-     * than one big innerHTML string) so individual rows can carry
-     * data attributes and per-row classes for the low-stock highlight
-     * and the real-time "flash" animation.
+     * Rebuilds the course table body from scratch using DOM methods:
+     * innerHTML reset to clear, then createElement + appendChild per
+     * row, so individual rows can carry data attributes and per-row
+     * classes for the status highlight and the real-time "flash"
+     * animation.
      */
     function renderTable(list, query) {
         els.tableBody.innerHTML = '';
@@ -155,43 +155,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = document.createElement('td');
             cell.colSpan = 8;
             cell.className = 'text-center text-muted py-4';
-            cell.textContent = 'No students match the current filters.';
+            cell.textContent = 'No courses match the current filters.';
             emptyRow.appendChild(cell);
             els.tableBody.appendChild(emptyRow);
         } else {
-            list.forEach(s => {
+            list.forEach(c => {
                 const row = document.createElement('tr');
-                if (s.stockStatus === 'At Risk') row.classList.add('row-at-risk');
-                if (s.stockStatus === 'Probation') row.classList.add('row-probation');
-                row.dataset.studentId = s.studentId;
+                if (c.status === 'At Risk') row.classList.add('row-at-risk');
+                if (c.status === 'Failing') row.classList.add('row-failing');
+                row.dataset.courseCode = c.courseCode;
 
                 row.innerHTML = `
-                    <td>${highlight(s.studentId, query)}</td>
-                    <td>${highlight(s.name, query)}</td>
-                    <td>${escapeHtml(s.category)}</td>
-                    <td>${s.yearLevel}</td>
-                    <td>${s.quantity}</td>
-                    <td>${s.unitPrice.toFixed(2)}</td>
-                    <td>${s.attendanceRate}%</td>
-                    <td><span class="badge status-badge ${statusBadgeClass(s.stockStatus)}">${s.stockStatus}</span></td>
+                    <td>${highlight(c.courseCode, query)}</td>
+                    <td>${highlight(c.courseName, query)}</td>
+                    <td>${escapeHtml(c.category)}</td>
+                    <td>${c.units}</td>
+                    <td>${escapeHtml(c.instructor)}</td>
+                    <td>${c.grade.toFixed(2)}</td>
+                    <td>${c.attendanceRate}%</td>
+                    <td><span class="badge status-badge ${statusBadgeClass(c.status)}">${c.status}</span></td>
                 `;
                 els.tableBody.appendChild(row);
             });
         }
 
-        els.resultsCount.textContent = `Showing ${list.length} of ${dataManager.getProducts().length} students`;
+        els.resultsCount.textContent = `Showing ${list.length} of ${dataManager.getCourses().length} courses`;
     }
 
-    /** Low-stock (at-risk) banner always reflects the whole roster, not just the current filter. */
-    function updateLowStockAlert() {
-        const atRisk = dataManager.getLowStockProducts();
+    /** At-risk banner always reflects your entire course load, not just the current filter. */
+    function updateCourseAlert() {
+        const atRisk = dataManager.getAtRiskCourses();
         if (atRisk.length === 0) {
             els.alertBox.classList.add('d-none');
             return;
         }
-        const names = atRisk.slice(0, 3).map(s => s.name).join(', ');
+        const names = atRisk.slice(0, 3).map(c => c.courseName).join(', ');
         const extra = atRisk.length > 3 ? ` and ${atRisk.length - 3} more` : '';
-        els.alertText.textContent = `${atRisk.length} student(s) are At Risk or on Probation: ${names}${extra}.`;
+        els.alertText.textContent = `You're At Risk or Failing in ${atRisk.length} course(s): ${names}${extra}.`;
         els.alertBox.classList.remove('d-none');
     }
 
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function refreshView() {
         const filtered = dataManager.applyFilters();
         renderTable(filtered, currentQuery);
-        updateLowStockAlert();
+        updateCourseAlert();
         if (typeof dashboardCharts !== 'undefined') {
             dashboardCharts.renderAll(filtered);
         }
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
     }
 
-    // ---- Part 5 Step 5: simulated real-time updates ---------------------
+    // ---- Part 5 Step 5: simulated real-time gradebook updates ---------------------
 
     function startRealtimeSimulation() {
         setInterval(() => {
@@ -236,17 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             refreshView();
 
-            const row = els.tableBody.querySelector(`tr[data-student-id="${CSS.escape(updated.studentId)}"]`);
+            const row = els.tableBody.querySelector(`tr[data-course-code="${CSS.escape(updated.courseCode)}"]`);
             if (row) {
                 row.classList.add('row-flash');
                 setTimeout(() => row.classList.remove('row-flash'), 1200);
             }
 
             showToast(
-                'Live update',
-                `${updated.name}'s GPA changed to ${updated.unitPrice.toFixed(2)} (${updated.stockStatus}).`,
+                'Grade update',
+                `Your grade in ${updated.courseName} was just updated to ${updated.grade.toFixed(2)} (${updated.status}).`,
                 'info'
             );
-        }, 5000); // every 5 seconds
+        }, 8000); // every 8 seconds
     }
 });

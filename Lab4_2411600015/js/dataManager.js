@@ -2,26 +2,26 @@
  * dataManager.js
  * ------------------------------------------------------------------
  * Central data management module for the GSCSDA Student Portal
- * Dashboard (Laboratory Exercise 4).
+ * Dashboard (Laboratory Exercise 4) — "My Courses" section.
  *
- * NAMING NOTE:
- * The lab specification is written around a generic "inventory"
- * dashboard (products, SKUs, stock status, price). This module keeps
- * those exact function names so the code satisfies the spec's required
- * function list, while the *data itself* is a Student Management theme.
- * Read the vocabulary as:
+ * IMPORTANT DESIGN NOTE:
+ * The first draft of this dashboard let the logged-in user browse a
+ * table of *other* students (their programs, GPAs, standings). That
+ * broke the Student Portal theme — a portal is supposed to show the
+ * logged-in student their own information, not a roster of everyone
+ * else's. This version replaces that roster with the logged-in
+ * student's own enrolled courses for the current term: their grade,
+ * units, category, and standing *per course*, not per classmate.
  *
- *   "product"      -> a student record
- *   category        -> academic program (e.g. "BS Computer Science")
- *   unitPrice        -> GPA (0.00 - 4.00 scale)
- *   quantity          -> enrolled units/credits
- *   totalValue         -> "quality points" = units * GPA (same formula
- *                         shape as quantity * unitPrice)
- *   stockStatus         -> academic standing: "Good Standing" / "At Risk" / "Probation"
- *   reorderLevel          -> the GPA threshold that triggers an at-risk flag
+ * Data model per course record:
+ *   courseCode, courseName, category, units, grade, instructor, attendanceRate
+ * Computed on load:
+ *   status         ("Passing" / "At Risk" / "Failing")
+ *   gradeThreshold  (the grade that separates Passing from At Risk)
+ *   qualityPoints    (units * grade)
  *
- * Exposes a single global `dataManager` object (module pattern / IIFE)
- * so state lives in one place instead of scattered globals.
+ * Module pattern (IIFE) keeps all state private and exposes a single
+ * global `dataManager` object.
  * ------------------------------------------------------------------
  */
 
@@ -31,64 +31,68 @@ const dataManager = (function () {
     // ---------------------------------------------------------------
     // Private state
     // ---------------------------------------------------------------
-    let students = [];
+    let courses = [];
 
     let activeFilters = {
         category: 'all',
-        stockStatus: 'all',
-        priceMin: null,
-        priceMax: null,
+        status: 'all',
+        gradeMin: null,
+        gradeMax: null,
         searchQuery: ''
     };
 
-    // Academic standing thresholds (GPA on a 4.0 scale, higher = better)
-    const GPA_GOOD_STANDING = 3.0; // >= this -> Good Standing
-    const GPA_AT_RISK = 2.0;       // >= this and < GOOD_STANDING -> At Risk
-    // below GPA_AT_RISK -> Probation
+    // Standing thresholds (grade on a 4.0 scale, higher = better —
+    // matches the GPA stat card already on the dashboard)
+    const GRADE_PASSING = 3.0; // >= this -> Passing
+    const GRADE_AT_RISK = 2.0; // >= this and < PASSING -> At Risk
+    // below GRADE_AT_RISK -> Failing
 
     // ---------------------------------------------------------------
-    // Sample "backend" data.
-    // In Part 7 this can be swapped for a fetch() call to api.php
-    // without changing any function signature below.
+    // Sample fallback data (this term's enrolled courses), used only
+    // if api.php is unreachable.
     // ---------------------------------------------------------------
-    const SAMPLE_STUDENTS = [
-        { id: 1, studentId: '2411600015', name: 'Josh Ian Pacalang', category: 'BS Information Technology', yearLevel: 3, quantity: 21, unitPrice: 3.75, attendanceRate: 96 },
-
+    const SAMPLE_COURSES = [
+        { id: 1, courseCode: 'CS201', courseName: 'Data Structures and Algorithms', category: 'Major', units: 3, grade: 3.75, instructor: 'Prof. Santos', attendanceRate: 96 },
+        { id: 2, courseCode: 'CS210', courseName: 'Database Management Systems', category: 'Major', units: 3, grade: 1.85, instructor: 'Prof. Reyes', attendanceRate: 78 },
+        { id: 3, courseCode: 'CS220', courseName: 'Object-Oriented Programming', category: 'Major', units: 3, grade: 3.20, instructor: 'Prof. Cruz', attendanceRate: 91 },
+        { id: 4, courseCode: 'MATH101', courseName: 'Calculus I', category: 'Minor', units: 3, grade: 2.40, instructor: 'Prof. Bautista', attendanceRate: 85 },
+        { id: 5, courseCode: 'ENG101', courseName: 'Communication Arts', category: 'Gen Ed', units: 3, grade: 1.60, instructor: 'Prof. Fernandez', attendanceRate: 70 },
+        { id: 6, courseCode: 'PE101', courseName: 'Physical Education', category: 'Gen Ed', units: 2, grade: 3.90, instructor: 'Prof. Torres', attendanceRate: 98 },
+        { id: 7, courseCode: 'HIST101', courseName: 'Philippine History', category: 'Gen Ed', units: 3, grade: 2.95, instructor: 'Prof. Ramos', attendanceRate: 88 },
+        { id: 8, courseCode: 'CS230', courseName: 'Web Development', category: 'Elective', units: 3, grade: 3.55, instructor: 'Prof. Mendoza', attendanceRate: 94 },
+        { id: 9, courseCode: 'STAT101', courseName: 'Statistics', category: 'Minor', units: 3, grade: 3.10, instructor: 'Prof. Aquino', attendanceRate: 90 },
+        { id: 10, courseCode: 'CS240', courseName: 'Software Engineering', category: 'Major', units: 3, grade: 2.65, instructor: 'Prof. Garcia', attendanceRate: 82 },
     ];
 
     // ---------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------
 
-    function deriveStatus(unitPrice) {
-        if (unitPrice >= GPA_GOOD_STANDING) return 'Good Standing';
-        if (unitPrice >= GPA_AT_RISK) return 'At Risk';
-        return 'Probation';
+    function deriveStatus(grade) {
+        if (grade >= GRADE_PASSING) return 'Passing';
+        if (grade >= GRADE_AT_RISK) return 'At Risk';
+        return 'Failing';
     }
 
-    // Attaches computed fields (stockStatus, reorderLevel, totalValue)
-    // to a raw student record.
-    function withComputed(student) {
+    // Attaches computed fields (status, gradeThreshold, qualityPoints)
+    function withComputed(course) {
         return {
-            ...student,
-            stockStatus: deriveStatus(student.unitPrice),
-            reorderLevel: GPA_GOOD_STANDING,
-            totalValue: +(student.quantity * student.unitPrice).toFixed(2)
+            ...course,
+            status: deriveStatus(course.grade),
+            gradeThreshold: GRADE_PASSING,
+            qualityPoints: +(course.units * course.grade).toFixed(2)
         };
     }
 
     // ---------------------------------------------------------------
-    // Step 1: Initialization & basic getters
+    // Part 7: backend endpoint. If api.php isn't deployed/running
+    // (e.g. opened via file://, or XAMPP's Apache isn't started),
+    // initializeData() falls back to SAMPLE_COURSES so the dashboard
+    // still works standalone.
     // ---------------------------------------------------------------
-
-    // Part 7: backend endpoint. If api.php isn't deployed/running (e.g.
-    // the page was opened directly via file://, or XAMPP's Apache isn't
-    // started), initializeData() falls back to the bundled sample data
-    // below so the dashboard still works standalone.
     const API_ENDPOINT = 'api.php?action=list';
     const API_TIMEOUT_MS = 2000;
 
-    /** Attempts to fetch the roster from api.php, with a short timeout. */
     function fetchFromApi() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
@@ -106,104 +110,109 @@ const dataManager = (function () {
     }
 
     /**
-     * Sets up the initial dataset. Tries api.php first (Part 7); if that
-     * fails for any reason, falls back to the bundled sample data after
-     * a short simulated delay, so the dashboard is never blocked on a
-     * live backend. Either way returns a Promise resolving to the roster.
+     * Sets up the initial dataset. Tries api.php first; falls back to
+     * bundled sample data after a short simulated delay if the API is
+     * unreachable. Always returns a Promise resolving to the course list.
      */
     function initializeData() {
         return fetchFromApi()
-            .then(apiStudents => {
-                students = apiStudents.map(withComputed);
-                return getProducts();
+            .then(apiCourses => {
+                courses = apiCourses.map(withComputed);
+                return getCourses();
             })
             .catch(() => {
                 console.warn('dataManager: api.php unreachable — using bundled sample data.');
                 return new Promise((resolve) => {
                     setTimeout(() => {
-                        students = SAMPLE_STUDENTS.map(withComputed);
-                        resolve(getProducts());
+                        courses = SAMPLE_COURSES.map(withComputed);
+                        resolve(getCourses());
                     }, 300);
                 });
             });
     }
 
-    /** Returns a shallow copy of the full current student list. */
-    function getProducts() {
-        return [...students];
+    // ---------------------------------------------------------------
+    // Getters
+    // ---------------------------------------------------------------
+
+    /** Returns a shallow copy of the full list of enrolled courses. */
+    function getCourses() {
+        return [...courses];
     }
 
-    /** Returns a single student by numeric id or studentId string. */
-    function getProductById(id) {
-        return students.find(s => s.id === id || s.studentId === id) || null;
+    /** Returns a single course by numeric id or course code string. */
+    function getCourseById(id) {
+        return courses.find(c => c.id === id || c.courseCode === id) || null;
     }
 
-    /** Returns students belonging to a given program. */
-    function getProductsByCategory(category) {
-        return students.filter(s => s.category === category);
+    /** Returns courses belonging to a given category. */
+    function getCoursesByCategory(category) {
+        return courses.filter(c => c.category === category);
     }
 
-    /** Returns students who are At Risk or on Probation. */
-    function getLowStockProducts() {
-        return students.filter(s => s.stockStatus !== 'Good Standing');
+    /** Returns courses that are At Risk or Failing. */
+    function getAtRiskCourses() {
+        return courses.filter(c => c.status !== 'Passing');
     }
 
     /**
-     * Returns aggregate statistics. Pass a pre-filtered list (e.g. from
-     * applyFilters()) to get stats scoped to the current view; omit it
-     * to summarize the entire roster.
+     * Returns aggregate grade statistics. Pass a pre-filtered list
+     * (e.g. from applyFilters()) to scope stats to the current view;
+     * omit it to summarize the full course load.
      */
-    function getStockStatistics(list) {
-        const source = list || students;
+    function getGradeStatistics(list) {
+        const source = list || courses;
         const total = source.length;
-        const totalValue = source.reduce((sum, s) => sum + s.totalValue, 0);
-        const goodStanding = source.filter(s => s.stockStatus === 'Good Standing').length;
-        const atRisk = source.filter(s => s.stockStatus === 'At Risk').length;
-        const probation = source.filter(s => s.stockStatus === 'Probation').length;
-        const avgGpa = total
-            ? +(source.reduce((sum, s) => sum + s.unitPrice, 0) / total).toFixed(2)
+        const totalQualityPoints = source.reduce((sum, c) => sum + c.qualityPoints, 0);
+        const passing = source.filter(c => c.status === 'Passing').length;
+        const atRisk = source.filter(c => c.status === 'At Risk').length;
+        const failing = source.filter(c => c.status === 'Failing').length;
+        const totalUnits = source.reduce((sum, c) => sum + c.units, 0);
+        const averageGrade = totalUnits
+            ? +(totalQualityPoints / totalUnits).toFixed(2)
             : 0;
 
         return {
-            totalProducts: total,
-            totalValue: +totalValue.toFixed(2),
-            inStock: goodStanding,
-            lowStock: atRisk,
-            outOfStock: probation,
-            averagePrice: avgGpa
+            totalCourses: total,
+            totalUnits,
+            totalQualityPoints: +totalQualityPoints.toFixed(2),
+            passing,
+            atRisk,
+            failing,
+            averageGrade
         };
     }
 
     /**
-     * Returns per-program totals (quantity, quality points, headcount).
+     * Returns per-category totals (units, quality points, course count).
      * Pass a pre-filtered list to scope the summary to the current view.
      */
     function getCategorySummary(list) {
-        const source = list || students;
+        const source = list || courses;
         const map = {};
-        source.forEach(s => {
-            if (!map[s.category]) {
-                map[s.category] = {
-                    category: s.category,
-                    totalQuantity: 0,
-                    totalValue: 0,
+        source.forEach(c => {
+            if (!map[c.category]) {
+                map[c.category] = {
+                    category: c.category,
+                    totalUnits: 0,
+                    totalQualityPoints: 0,
                     count: 0
                 };
             }
-            map[s.category].totalQuantity += s.quantity;
-            map[s.category].totalValue += s.totalValue;
-            map[s.category].count += 1;
+            map[c.category].totalUnits += c.units;
+            map[c.category].totalQualityPoints += c.qualityPoints;
+            map[c.category].count += 1;
         });
-        return Object.values(map).map(c => ({ ...c, totalValue: +c.totalValue.toFixed(2) }));
+        return Object.values(map).map(cat => ({ ...cat, totalQualityPoints: +cat.totalQualityPoints.toFixed(2) }));
     }
 
-    /** Returns the distinct list of programs present in the data. */
+    /** Returns the distinct list of categories present in the data. */
     function getCategories() {
-        return [...new Set(students.map(s => s.category))];
+        return [...new Set(courses.map(c => c.category))];
     }
 
     // ---------------------------------------------------------------
-    // Step 2: Filtering & search
+    // Filtering & search
     // ---------------------------------------------------------------
 
     function filterByCategory(category) {
@@ -211,45 +220,45 @@ const dataManager = (function () {
         return applyFilters();
     }
 
-    function filterByStockStatus(status) {
-        activeFilters.stockStatus = status;
+    function filterByStatus(status) {
+        activeFilters.status = status;
         return applyFilters();
     }
 
-    function filterByPriceRange(min, max) {
-        activeFilters.priceMin = (min === '' || min == null) ? null : Number(min);
-        activeFilters.priceMax = (max === '' || max == null) ? null : Number(max);
+    function filterByGradeRange(min, max) {
+        activeFilters.gradeMin = (min === '' || min == null) ? null : Number(min);
+        activeFilters.gradeMax = (max === '' || max == null) ? null : Number(max);
         return applyFilters();
     }
 
     /** Applies every active filter + the search query together. */
     function applyFilters() {
-        return students.filter(s => {
-            const matchCategory = activeFilters.category === 'all' || s.category === activeFilters.category;
-            const matchStatus = activeFilters.stockStatus === 'all' || s.stockStatus === activeFilters.stockStatus;
-            const matchMin = activeFilters.priceMin == null || s.unitPrice >= activeFilters.priceMin;
-            const matchMax = activeFilters.priceMax == null || s.unitPrice <= activeFilters.priceMax;
+        return courses.filter(c => {
+            const matchCategory = activeFilters.category === 'all' || c.category === activeFilters.category;
+            const matchStatus = activeFilters.status === 'all' || c.status === activeFilters.status;
+            const matchMin = activeFilters.gradeMin == null || c.grade >= activeFilters.gradeMin;
+            const matchMax = activeFilters.gradeMax == null || c.grade <= activeFilters.gradeMax;
             const q = activeFilters.searchQuery.trim().toLowerCase();
             const matchSearch = !q ||
-                s.name.toLowerCase().includes(q) ||
-                s.studentId.toLowerCase().includes(q);
+                c.courseName.toLowerCase().includes(q) ||
+                c.courseCode.toLowerCase().includes(q);
             return matchCategory && matchStatus && matchMin && matchMax && matchSearch;
         });
     }
 
     function resetFilters() {
-        activeFilters = { category: 'all', stockStatus: 'all', priceMin: null, priceMax: null, searchQuery: '' };
-        return getProducts();
+        activeFilters = { category: 'all', status: 'all', gradeMin: null, gradeMax: null, searchQuery: '' };
+        return getCourses();
     }
 
-    function searchProducts(query) {
+    function searchCourses(query) {
         activeFilters.searchQuery = query || '';
         return applyFilters();
     }
 
-    /** Convenience alias matching the spec's naming for the search handler. */
+    /** Convenience alias for the search input handler. */
     function updateSearchResults(query) {
-        return searchProducts(query);
+        return searchCourses(query);
     }
 
     function getActiveFilters() {
@@ -257,25 +266,25 @@ const dataManager = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Step 3: CSV export
+    // CSV export
     // ---------------------------------------------------------------
 
-    /** Converts a list of student records into a CSV string. */
+    /** Converts a list of course records into a CSV string. */
     function exportToCSV(data) {
-        const rows = (data && data.length) ? data : students;
-        const headers = ['Student ID', 'Name', 'Program', 'Year Level', 'Units', 'GPA', 'Attendance %', 'Status'];
+        const rows = (data && data.length) ? data : courses;
+        const headers = ['Course Code', 'Course Name', 'Category', 'Units', 'Instructor', 'Grade', 'Attendance %', 'Status'];
 
         const escape = (val) => `"${String(val).replace(/"/g, '""')}"`;
 
-        const lines = rows.map(s => [
-            s.studentId,
-            escape(s.name),
-            escape(s.category),
-            s.yearLevel,
-            s.quantity,
-            s.unitPrice.toFixed(2),
-            s.attendanceRate,
-            s.stockStatus
+        const lines = rows.map(c => [
+            c.courseCode,
+            escape(c.courseName),
+            escape(c.category),
+            c.units,
+            escape(c.instructor),
+            c.grade.toFixed(2),
+            c.attendanceRate,
+            c.status
         ].join(','));
 
         return [headers.join(','), ...lines].join('\r\n');
@@ -287,7 +296,7 @@ const dataManager = (function () {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', filename || 'student_roster.csv');
+        link.setAttribute('download', filename || 'my_grades.csv');
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -299,15 +308,15 @@ const dataManager = (function () {
     // Real-time simulation hook (wired up by app.js in Part 5)
     // ---------------------------------------------------------------
 
-    /** Nudges one random student's GPA to mimic a live data feed. */
+    /** Nudges one random course's grade to mimic a live gradebook update. */
     function simulateUpdate() {
-        if (!students.length) return null;
-        const idx = Math.floor(Math.random() * students.length);
+        if (!courses.length) return null;
+        const idx = Math.floor(Math.random() * courses.length);
         const delta = +(Math.random() * 0.4 - 0.2).toFixed(2);
-        let newGpa = +(students[idx].unitPrice + delta).toFixed(2);
-        newGpa = Math.min(4.0, Math.max(0.5, newGpa));
-        students[idx] = withComputed({ ...students[idx], unitPrice: newGpa });
-        return students[idx];
+        let newGrade = +(courses[idx].grade + delta).toFixed(2);
+        newGrade = Math.min(4.0, Math.max(0.5, newGrade));
+        courses[idx] = withComputed({ ...courses[idx], grade: newGrade });
+        return courses[idx];
     }
 
     // ---------------------------------------------------------------
@@ -315,19 +324,19 @@ const dataManager = (function () {
     // ---------------------------------------------------------------
     return {
         initializeData,
-        getProducts,
-        getProductById,
-        getProductsByCategory,
-        getLowStockProducts,
-        getStockStatistics,
+        getCourses,
+        getCourseById,
+        getCoursesByCategory,
+        getAtRiskCourses,
+        getGradeStatistics,
         getCategorySummary,
         getCategories,
         filterByCategory,
-        filterByStockStatus,
-        filterByPriceRange,
+        filterByStatus,
+        filterByGradeRange,
         applyFilters,
         resetFilters,
-        searchProducts,
+        searchCourses,
         updateSearchResults,
         getActiveFilters,
         exportToCSV,

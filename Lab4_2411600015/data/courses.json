@@ -1,0 +1,12 @@
+[
+    { "id": 1, "courseCode": "CS201", "courseName": "Data Structures and Algorithms", "category": "Major", "units": 3, "grade": 3.75, "instructor": "Prof. Santos", "attendanceRate": 96 },
+    { "id": 2, "courseCode": "CS210", "courseName": "Database Management Systems", "category": "Major", "units": 3, "grade": 1.85, "instructor": "Prof. Reyes", "attendanceRate": 78 },
+    { "id": 3, "courseCode": "CS220", "courseName": "Object-Oriented Programming", "category": "Major", "units": 3, "grade": 3.20, "instructor": "Prof. Cruz", "attendanceRate": 91 },
+    { "id": 4, "courseCode": "MATH101", "courseName": "Calculus I", "category": "Minor", "units": 3, "grade": 2.40, "instructor": "Prof. Bautista", "attendanceRate": 85 },
+    { "id": 5, "courseCode": "ENG101", "courseName": "Communication Arts", "category": "Gen Ed", "units": 3, "grade": 1.60, "instructor": "Prof. Fernandez", "attendanceRate": 70 },
+    { "id": 6, "courseCode": "PE101", "courseName": "Physical Education", "category": "Gen Ed", "units": 2, "grade": 3.90, "instructor": "Prof. Torres", "attendanceRate": 98 },
+    { "id": 7, "courseCode": "HIST101", "courseName": "Philippine History", "category": "Gen Ed", "units": 3, "grade": 2.95, "instructor": "Prof. Ramos", "attendanceRate": 88 },
+    { "id": 8, "courseCode": "CS230", "courseName": "Web Development", "category": "Elective", "units": 3, "grade": 3.55, "instructor": "Prof. Mendoza", "attendanceRate": 94 },
+    { "id": 9, "courseCode": "STAT101", "courseName": "Statistics", "category": "Minor", "units": 3, "grade": 3.10, "instructor": "Prof. Aquino", "attendanceRate": 90 },
+    { "id": 10, "courseCode": "CS240", "courseName": "Software Engineering", "category": "Major", "units": 3, "grade": 2.65, "instructor": "Prof. Garcia", "attendanceRate": 82 }
+]

@@ -1,19 +1,18 @@
 /**
  * charts.js
  * ------------------------------------------------------------------
- * Chart.js configuration and rendering for the Student Management
- * Dashboard (Laboratory Exercise 4, Part 4).
+ * Chart.js configuration and rendering for the GSCSDA Student Portal
+ * Dashboard (Laboratory Exercise 4, Part 4) — "My Courses" section.
  *
- * Three charts, each reading from dataManager:
- *   1. categoryValueChart -> Quality Points by Program   (bar)
- *   2. stockStatusChart   -> Academic Standing Distribution (polarArea)
- *   3. topProductsChart   -> Top 5 Students by GPA        (horizontal bar)
+ * Three charts, each reading from dataManager and scoped to the
+ * logged-in student's own enrolled courses:
+ *   1. categoryChart -> Units by Course Category   (bar)
+ *   2. statusChart    -> Course Status Distribution  (doughnut)
+ *   3. topCoursesChart -> Top Courses by Grade        (horizontal bar)
  *
  * Chart instances are kept in module state so they can be destroyed
  * and rebuilt whenever filters, search, or the real-time simulation
- * change the underlying data (Chart.js instances can't just have
- * their canvas re-drawn — the old instance must be destroyed first
- * or it leaks and stacks tooltips).
+ * change the underlying data.
  * ------------------------------------------------------------------
  */
 
@@ -22,9 +21,9 @@ const dashboardCharts = (function () {
 
     let categoryChart = null;
     let statusChart = null;
-    let topChart = null;
+    let topCoursesChart = null;
 
-    // Matches css/style.css theme variables
+    // Matches css/style.css theme variables (blue theme)
     const COLORS = {
         primary: '#072AC8',
         secondary: '#1E96FC',
@@ -41,15 +40,16 @@ const dashboardCharts = (function () {
     };
 
     /**
-     * Step 2: Inventory (Quality Points) by Category/Program chart.
-     * Bar chart: programs on the x-axis, total quality points on the y-axis.
+     * Units by Course Category chart.
+     * Bar chart: category (Major/Minor/Gen Ed/Elective) on the x-axis,
+     * total enrolled units on the y-axis.
      */
-    function renderCategoryValueChart(categorySummary) {
-        const canvas = document.getElementById('categoryValueChart');
+    function renderCategoryChart(categorySummary) {
+        const canvas = document.getElementById('categoryChart');
         if (!canvas) return;
 
         const labels = categorySummary.map(c => c.category);
-        const values = categorySummary.map(c => c.totalValue);
+        const values = categorySummary.map(c => c.totalUnits);
 
         if (categoryChart) categoryChart.destroy();
         categoryChart = new Chart(canvas, {
@@ -57,7 +57,7 @@ const dashboardCharts = (function () {
             data: {
                 labels,
                 datasets: [{
-                    label: 'Quality Points (Units × GPA)',
+                    label: 'Units',
                     data: values,
                     backgroundColor: COLORS.primary,
                     hoverBackgroundColor: COLORS.secondary,
@@ -71,7 +71,7 @@ const dashboardCharts = (function () {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: (ctx) => `${ctx.parsed.y.toFixed(2)} quality points`
+                            label: (ctx) => `${ctx.parsed.y} unit(s)`
                         }
                     }
                 },
@@ -84,20 +84,20 @@ const dashboardCharts = (function () {
     }
 
     /**
-     * Step 3: Stock Status / Academic Standing Distribution chart.
-     * Polar Area chart with semantic colors (green/yellow/red).
+     * Course Status Distribution chart.
+     * Doughnut chart with semantic colors (green/yellow/red).
      */
-    function renderStockStatusChart(stats) {
-        const canvas = document.getElementById('stockStatusChart');
+    function renderStatusChart(stats) {
+        const canvas = document.getElementById('statusChart');
         if (!canvas) return;
 
         if (statusChart) statusChart.destroy();
         statusChart = new Chart(canvas, {
-            type: 'polarArea',
+            type: 'radar',
             data: {
-                labels: ['Good Standing', 'At Risk', 'Warning'],
+                labels: ['Passing', 'At Risk', 'Failing'],
                 datasets: [{
-                    data: [stats.inStock, stats.lowStock, stats.outOfStock],
+                    data: [stats.passing, stats.atRisk, stats.failing],
                     backgroundColor: [COLORS.success, COLORS.warning, COLORS.danger],
                     hoverOffset: 8
                 }]
@@ -112,23 +112,26 @@ const dashboardCharts = (function () {
         });
     }
 
-   
-    function renderTopProductsChart(students) {
-        const canvas = document.getElementById('topProductsChart');
+    /**
+     * Top Courses by Grade.
+     * Horizontal bar chart — good for longer course-name labels.
+     */
+    function renderTopCoursesChart(courses) {
+        const canvas = document.getElementById('topCoursesChart');
         if (!canvas) return;
 
-        const top5 = [...students]
-            .sort((a, b) => b.unitPrice - a.unitPrice)
+        const top5 = [...courses]
+            .sort((a, b) => b.grade - a.grade)
             .slice(0, 5);
 
-        if (topChart) topChart.destroy();
-        topChart = new Chart(canvas, {
+        if (topCoursesChart) topCoursesChart.destroy();
+        topCoursesChart = new Chart(canvas, {
             type: 'bar',
             data: {
-                labels: top5.map(s => s.name),
+                labels: top5.map(c => c.courseName),
                 datasets: [{
-                    label: 'GPA',
-                    data: top5.map(s => s.unitPrice),
+                    label: 'Grade',
+                    data: top5.map(c => c.grade),
                     backgroundColor: COLORS.secondary,
                     hoverBackgroundColor: COLORS.primary,
                     borderRadius: 6
@@ -146,23 +149,21 @@ const dashboardCharts = (function () {
     }
 
     /**
-     * Re-renders all three charts. Pass the currently filtered student
-     * list (from dataManager.applyFilters()) so the charts reflect
-     * whatever the user has filtered/searched for; omit it to chart the
-     * full roster. Called after initial load, after every filter/search
-     * change, and after each real-time simulation tick.
+     * Re-renders all three charts. Pass the currently filtered course
+     * list (from dataManager.applyFilters()) so the charts update in
+     * sync with the table and search; omit it to chart the full load.
      */
     function renderAll(list) {
-        const source = list || dataManager.getProducts();
-        renderCategoryValueChart(dataManager.getCategorySummary(source));
-        renderStockStatusChart(dataManager.getStockStatistics(source));
-        renderTopProductsChart(source);
+        const source = list || dataManager.getCourses();
+        renderCategoryChart(dataManager.getCategorySummary(source));
+        renderStatusChart(dataManager.getGradeStatistics(source));
+        renderTopCoursesChart(source);
     }
 
     return {
         renderAll,
-        renderCategoryValueChart,
-        renderStockStatusChart,
-        renderTopProductsChart
+        renderCategoryChart,
+        renderStatusChart,
+        renderTopCoursesChart
     };
 })();

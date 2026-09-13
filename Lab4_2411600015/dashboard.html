@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>GSCSDA Student Portal Dashboard</title>
     <!-- Bootstrap 5 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Chart.js CDN (Part 4) -->
@@ -69,11 +69,11 @@
                 </div>
 
                 <!-- ===================== -->
-                <!-- Low-Stock / At-Risk Alert Banner (Part 2 Step 1 / Part 5 Step 3) -->
+                <!-- At-Risk Course Alert Banner (Part 2 Step 1 / Part 5 Step 3) -->
                 <!-- ===================== -->
-                <div id="lowStockAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
-                    <strong>⚠️ At-Risk Alert:</strong>
-                    <span id="lowStockAlertText"></span>
+                <div id="courseAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
+                    <strong>⚠️ Academic Alert:</strong>
+                    <span id="courseAlertText"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
@@ -119,11 +119,11 @@
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="card shadow-hover h-100">
                             <div class="card-header">
-                                <h6 class="mb-0">Quality Points by Program</h6>
+                                <h6 class="mb-0">Units by Course Category</h6>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <canvas id="categoryValueChart" aria-label="Quality points by program chart"
+                                    <canvas id="categoryChart" aria-label="Units by course category chart"
                                         role="img"></canvas>
                                 </div>
                             </div>
@@ -132,11 +132,11 @@
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="card shadow-hover h-100">
                             <div class="card-header">
-                                <h6 class="mb-0">Academic Standing Distribution</h6>
+                                <h6 class="mb-0">Course Status Distribution</h6>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <canvas id="stockStatusChart" aria-label="Academic standing distribution chart"
+                                    <canvas id="statusChart" aria-label="Course status distribution chart"
                                         role="img"></canvas>
                                 </div>
                             </div>
@@ -145,11 +145,11 @@
                     <div class="col-lg-4 col-md-12 mb-3">
                         <div class="card shadow-hover h-100">
                             <div class="card-header">
-                                <h6 class="mb-0">Top Students by GPA</h6>
+                                <h6 class="mb-0">Top Courses by Grade</h6>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <canvas id="topProductsChart" aria-label="Top students by GPA chart"
+                                    <canvas id="topCoursesChart" aria-label="Top courses by grade chart"
                                         role="img"></canvas>
                                 </div>
                             </div>
@@ -164,28 +164,28 @@
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-3">
-                                <label for="categoryFilter" class="form-label">Program</label>
+                                <label for="categoryFilter" class="form-label">Category</label>
                                 <select id="categoryFilter" class="form-select">
-                                    <option value="all">All Programs</option>
+                                    <option value="all">All Categories</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="statusFilter" class="form-label">Academic Standing</label>
+                                <label for="statusFilter" class="form-label">Status</label>
                                 <select id="statusFilter" class="form-select">
                                     <option value="all">All Statuses</option>
-                                    <option value="Good Standing">Good Standing</option>
+                                    <option value="Passing">Passing</option>
                                     <option value="At Risk">At Risk</option>
-                                    <option value="Probation">Probation</option>
+                                    <option value="Failing">Failing</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="priceMinInput" class="form-label">Min GPA</label>
-                                <input type="number" id="priceMinInput" class="form-control" step="0.01" min="0" max="4"
+                                <label for="gradeMinInput" class="form-label">Min Grade</label>
+                                <input type="number" id="gradeMinInput" class="form-control" step="0.01" min="0" max="4"
                                     placeholder="0.00">
                             </div>
                             <div class="col-md-2">
-                                <label for="priceMaxInput" class="form-label">Max GPA</label>
-                                <input type="number" id="priceMaxInput" class="form-control" step="0.01" min="0" max="4"
+                                <label for="gradeMaxInput" class="form-label">Max Grade</label>
+                                <input type="number" id="gradeMaxInput" class="form-control" step="0.01" min="0" max="4"
                                     placeholder="4.00">
                             </div>
                             <div class="col-md-2">
@@ -196,14 +196,14 @@
                 </div>
 
                 <!-- ===================== -->
-                <!-- Student Roster: Search + Export + Table (Part 2 Step 1 / Part 3 / Part 5 Step 2) -->
+                <!-- My Courses: Search + Export + Table (Part 2 Step 1 / Part 3 / Part 5 Step 2) -->
                 <!-- ===================== -->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h5 class="mb-0">Student Portal </h5>
+                        <h5 class="mb-0">My Courses</h5>
                         <div class="d-flex gap-2">
                             <input type="text" id="searchInput" class="form-control form-control-sm"
-                                placeholder="Search by name or Student ID..." style="min-width: 220px;">
+                                placeholder="Search by course name or code..." style="min-width: 220px;">
                             <button id="exportCsvBtn" class="btn btn-sm btn-success">Export CSV</button>
                         </div>
                     </div>
@@ -212,17 +212,17 @@
                             <table class="table table-striped table-hover align-middle">
                                 <thead>
                                     <tr class="border-accent">
-                                        <th>Student ID</th>
-                                        <th>Name</th>
-                                        <th>Program</th>
-                                        <th>Year</th>
+                                        <th>Course Code</th>
+                                        <th>Course Name</th>
+                                        <th>Category</th>
                                         <th>Units</th>
-                                        <th>GPA</th>
+                                        <th>Instructor</th>
+                                        <th>Grade</th>
                                         <th>Attendance</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
-                                <tbody id="studentTableBody">
+                                <tbody id="courseTableBody">
                                     <!-- Dynamic rows inserted by app.js -->
                                 </tbody>
                             </table>

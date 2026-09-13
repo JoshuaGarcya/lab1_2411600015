@@ -149,7 +149,7 @@ body {
 }
 
 /* ===================== */
-/* Part 6: Interactive element styling (Lab 4) */
+/* Part 6: Interactive element styling (Lab 4 — My Courses) */
 /* ===================== */
 
 .chart-container {
@@ -158,8 +158,8 @@ body {
     width: 100%;
 }
 
-/* Low-stock / at-risk alert banner */
-#lowStockAlert {
+/* Academic warning banner (courses you're at risk of failing) */
+#courseAlert {
     border-left: 4px solid var(--bs-warning);
     transition: opacity 0.3s ease;
 }
@@ -171,26 +171,26 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(30, 150, 252, 0.25);
 }
 
-/* Search-term highlighting inside the student table */
-#studentTableBody mark {
+/* Search-term highlighting inside the course table */
+#courseTableBody mark {
     background-color: var(--theme-light-accent);
     color: var(--theme-primary);
     padding: 0 2px;
     border-radius: 3px;
 }
 
-/* Row highlighting by academic standing */
-#studentTableBody tr.row-at-risk {
+/* Row highlighting by course status */
+#courseTableBody tr.row-at-risk {
     background-color: rgba(243, 167, 18, 0.12);
     transition: background-color 0.3s ease;
 }
 
-#studentTableBody tr.row-probation {
+#courseTableBody tr.row-failing {
     background-color: rgba(220, 53, 69, 0.12);
     transition: background-color 0.3s ease;
 }
 
-#studentTableBody tr.row-flash {
+#courseTableBody tr.row-flash {
     animation: rowFlash 1.2s ease;
 }
 
