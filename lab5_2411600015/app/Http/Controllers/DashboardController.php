@@ -12,7 +12,7 @@ class DashboardController extends Controller
         $totalCourses = Course::count();
 
         // Courses with grades from 2.00 to below 3.00
-        $atRiskCourses = Course::where('grade', '<', 2.0)
+        $atRiskCourses = Course::where('grade', '<', 3.0)
             ->where('grade', '>=', 2.0)
             ->count();
 
