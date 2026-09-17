@@ -1,27 +1,4 @@
 <?php
-/**
- * api.php
- * ------------------------------------------------------------------
- * Simple PHP backend for the GSCSDA Student Portal Dashboard
- * (Laboratory Exercise 4, Part 7) — "My Courses" section. Serves the
- * logged-in student's own enrolled courses as JSON and supports
- * adding/updating/deleting course records.
- *
- * Run under XAMPP (Apache) and call it from js/dataManager.js.
- *
- * Endpoints (relative to this file, e.g. http://localhost/lab4/api.php):
- *   GET  ?action=list                    -> full course list as JSON
- *   GET  ?action=get&id=CS201             -> single course
- *   POST ?action=add                       -> add a course (JSON body)
- *   POST ?action=update&id=CS201            -> patch one course's fields (JSON body)
- *   POST ?action=delete&id=CS201             -> remove a course
- *
- * Data persists to data/courses.json so changes survive requests.
- * A real deployment would use MySQL (XAMPP ships with it), but a flat
- * JSON file keeps this lab focused on the JS <-> API data flow rather
- * than SQL/PDO setup.
- * ------------------------------------------------------------------
- */
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
