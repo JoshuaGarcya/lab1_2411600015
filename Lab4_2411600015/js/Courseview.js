@@ -1,9 +1,8 @@
 /**
- * app.js
+ * Courseview.js
  * ------------------------------------------------------------------
  * DOM handlers for the GSCSDA Student Portal Dashboard (Lab 4, Part
- * 5) — "My Courses" section. Wires dataManager (state) and
- * dashboardCharts (visualization) to the page: filter controls, live
+ * 5) — "My Courses" section. Filter controls, live
  * search, at-risk course alerts, CSV export, and a simulated
  * real-time gradebook feed.
  * ------------------------------------------------------------------
@@ -14,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('courseTableBody');
     if (!tableBody || typeof dataManager === 'undefined') return;
 
-    const els = {
+    const elements = {
         categoryFilter: document.getElementById('categoryFilter'),
         statusFilter: document.getElementById('statusFilter'),
         gradeMin: document.getElementById('gradeMinInput'),
@@ -48,17 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const opt = document.createElement('option');
             opt.value = category;
             opt.textContent = category;
-            els.categoryFilter.appendChild(opt);
+            elements.categoryFilter.appendChild(opt);
         });
     }
 
     function attachListeners() {
-        els.categoryFilter.addEventListener('change', (e) => {
+        elements.categoryFilter.addEventListener('change', (e) => {
             dataManager.filterByCategory(e.target.value);
             refreshView();
         });
 
-        els.statusFilter.addEventListener('change', (e) => {
+        elements.statusFilter.addEventListener('change', (e) => {
             dataManager.filterByStatus(e.target.value);
             refreshView();
         });
@@ -67,26 +66,26 @@ document.addEventListener('DOMContentLoaded', () => {
         function handleGradeChange() {
             clearTimeout(gradeDebounce);
             gradeDebounce = setTimeout(() => {
-                dataManager.filterByGradeRange(els.gradeMin.value, els.gradeMax.value);
+                dataManager.filterByGradeRange(elements.gradeMin.value, elements.gradeMax.value);
                 refreshView();
             }, 250);
         }
-        els.gradeMin.addEventListener('input', handleGradeChange);
-        els.gradeMax.addEventListener('input', handleGradeChange);
+        elements.gradeMin.addEventListener('input', handleGradeChange);
+        elements.gradeMax.addEventListener('input', handleGradeChange);
 
-        els.resetBtn.addEventListener('click', () => {
+        elements.resetBtn.addEventListener('click', () => {
             dataManager.resetFilters();
             currentQuery = '';
-            els.categoryFilter.value = 'all';
-            els.statusFilter.value = 'all';
-            els.gradeMin.value = '';
-            els.gradeMax.value = '';
-            els.searchInput.value = '';
+            elements.categoryFilter.value = 'all';
+            elements.statusFilter.value = 'all';
+            elements.gradeMin.value = '';
+            elements.gradeMax.value = '';
+            elements.searchInput.value = '';
             refreshView();
         });
 
         let searchDebounce;
-        els.searchInput.addEventListener('input', (e) => {
+        elements.searchInput.addEventListener('input', (e) => {
             currentQuery = e.target.value;
             clearTimeout(searchDebounce);
             searchDebounce = setTimeout(() => {
@@ -95,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 150);
         });
 
-        els.exportBtn.addEventListener('click', () => {
+        elements.exportBtn.addEventListener('click', () => {
             const filtered = dataManager.applyFilters();
             if (!filtered.length) {
                 showToast('Nothing to export', 'No courses match the current filters.', 'warning');
@@ -111,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Rendering --------------------------------------------------
 
     function renderLoadingRow() {
-        els.tableBody.innerHTML = `
+        elements.tableBody.innerHTML = `
             <tr><td colspan="8" class="text-center text-muted py-4">Loading your courses...</td></tr>
         `;
     }
@@ -148,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * animation.
      */
     function renderTable(list, query) {
-        els.tableBody.innerHTML = '';
+        elements.tableBody.innerHTML = '';
 
         if (!list.length) {
             const emptyRow = document.createElement('tr');
@@ -157,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.className = 'text-center text-muted py-4';
             cell.textContent = 'No courses match the current filters.';
             emptyRow.appendChild(cell);
-            els.tableBody.appendChild(emptyRow);
+            elements.tableBody.appendChild(emptyRow);
         } else {
             list.forEach(c => {
                 const row = document.createElement('tr');
@@ -175,24 +174,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${c.attendanceRate}%</td>
                     <td><span class="badge status-badge ${statusBadgeClass(c.status)}">${c.status}</span></td>
                 `;
-                els.tableBody.appendChild(row);
+                elements.tableBody.appendChild(row);
             });
         }
 
-        els.resultsCount.textContent = `Showing ${list.length} of ${dataManager.getCourses().length} courses`;
+        elements.resultsCount.textContent = `Showing ${list.length} of ${dataManager.getCourses().length} courses`;
     }
 
     /** At-risk banner always reflects your entire course load, not just the current filter. */
     function updateCourseAlert() {
         const atRisk = dataManager.getAtRiskCourses();
         if (atRisk.length === 0) {
-            els.alertBox.classList.add('d-none');
+            elements.alertBox.classList.add('d-none');
             return;
         }
         const names = atRisk.slice(0, 3).map(c => c.courseName).join(', ');
         const extra = atRisk.length > 3 ? ` and ${atRisk.length - 3} more` : '';
-        els.alertText.textContent = `You're At Risk or Failing in ${atRisk.length} course(s): ${names}${extra}.`;
-        els.alertBox.classList.remove('d-none');
+        elements.alertText.textContent = `You're At Risk or Failing in ${atRisk.length} course(s): ${names}${extra}.`;
+        elements.alertBox.classList.remove('d-none');
     }
 
     /** Re-pulls the filtered list from dataManager and repaints table + alert + charts. */
@@ -208,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Notifications ------------------------------------------------
 
     function showToast(title, message, variant = 'primary') {
-        if (!els.toastContainer || typeof bootstrap === 'undefined') return;
+        if (!elements.toastContainer || typeof bootstrap === 'undefined') return;
 
         const toastEl = document.createElement('div');
         toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
@@ -221,13 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
-        els.toastContainer.appendChild(toastEl);
+        elements.toastContainer.appendChild(toastEl);
         const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
         toast.show();
         toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
     }
 
-    // ---- Part 5 Step 5: simulated real-time gradebook updates ---------------------
+    // ---- Simulated real-time gradebook updates ---------------------
 
     function startRealtimeSimulation() {
         setInterval(() => {
@@ -236,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             refreshView();
 
-            const row = els.tableBody.querySelector(`tr[data-course-code="${CSS.escape(updated.courseCode)}"]`);
+            const row = elements.tableBody.querySelector(`tr[data-course-code="${CSS.escape(updated.courseCode)}"]`);
             if (row) {
                 row.classList.add('row-flash');
                 setTimeout(() => row.classList.remove('row-flash'), 1200);

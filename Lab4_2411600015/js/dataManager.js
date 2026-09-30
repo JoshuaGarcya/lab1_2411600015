@@ -1,17 +1,7 @@
 /**
  * dataManager.js
  * ------------------------------------------------------------------
- * Central data management module for the GSCSDA Student Portal
  * Dashboard (Laboratory Exercise 4) — "My Courses" section.
- *
- * IMPORTANT DESIGN NOTE:
- * The first draft of this dashboard let the logged-in user browse a
- * table of *other* students (their programs, GPAs, standings). That
- * broke the Student Portal theme — a portal is supposed to show the
- * logged-in student their own information, not a roster of everyone
- * else's. This version replaces that roster with the logged-in
- * student's own enrolled courses for the current term: their grade,
- * units, category, and standing *per course*, not per classmate.
  *
  * Data model per course record:
  *   courseCode, courseName, category, units, grade, instructor, attendanceRate
@@ -305,7 +295,7 @@ const dataManager = (function () {
     }
 
     // ---------------------------------------------------------------
-    // Real-time simulation hook (wired up by app.js in Part 5)
+    // Real-time simulation hook (wired up by Courseview.js in Part 5)
     // ---------------------------------------------------------------
 
     /** Nudges one random course's grade to mimic a live gradebook update. */
@@ -344,3 +334,6 @@ const dataManager = (function () {
         simulateUpdate
     };
 })();
+
+
+
