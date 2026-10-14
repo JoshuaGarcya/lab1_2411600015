@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let searchDebounce;
         elements.searchInput.addEventListener('input', (e) => {
             currentQuery = e.target.value;
-            clearTimeout(searchDebounce);
+            clearTimeout(searchDebounce); 
             searchDebounce = setTimeout(() => {
                 dataManager.updateSearchResults(currentQuery);
                 refreshView();

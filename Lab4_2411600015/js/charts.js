@@ -1,20 +1,13 @@
 /**
  * charts.js
- * ------------------------------------------------------------------
- * Chart.js configuration and rendering for the GSCSDA Student Portal
- * Dashboard (Laboratory Exercise 4, Part 4) — "My Courses" section.
- *
+
  * Three charts, each reading from dataManager and scoped to the
  * logged-in student's own enrolled courses:
  *   1. categoryChart -> Units by Course Category   (bar)
  *   2. statusChart    -> Course Status Distribution  (doughnut)
  *   3. topCoursesChart -> Top Courses by Grade        (horizontal bar)
  *
- * Chart instances are kept in module state so they can be destroyed
- * and rebuilt whenever filters, search, or the real-time simulation
- * change the underlying data.
- * ------------------------------------------------------------------
- */
+*/
 
 const dashboardCharts = (function () {
     'use strict';
@@ -93,7 +86,7 @@ const dashboardCharts = (function () {
 
         if (statusChart) statusChart.destroy();
         statusChart = new Chart(canvas, {
-            type: 'radar',
+            type: 'polarArea',
             data: {
                 labels: ['Passing', 'At Risk', 'Failing'],
                 datasets: [{
