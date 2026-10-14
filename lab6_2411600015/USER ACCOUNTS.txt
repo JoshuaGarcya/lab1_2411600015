@@ -1,0 +1,12 @@
+admin@gscsda.test
+password123
+
+josh@gmail.com
+12345678
+
+
+Yes. This command deletes every table, rebuilds them all from your migration files, and reloads the sample data:
+
+php artisan migrate:fresh --seed
+php artisan optimize:clear
+php artisan serve
